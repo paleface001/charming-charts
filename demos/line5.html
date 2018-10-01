@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>某网站访问趋势</title>
+</head>
+
+<body>
+    <div id="chartTitle">某网站访问DAU趋势</div>
+    <div id="chartDescription">该网站每逢周末和小长假访问量立降，工作日访问量维持在1.4万左右，DAU (Daily Active User) 指日活跃用户数量。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="./build/g2.js"></script>
+    <script>
+        $.getJSON('./data/basement.json', function (data) {
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: [50, 50, 50, 50]
+            });
+            chart.axis('time', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('UV', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.tooltip({
+                crosshairs:false
+            });
+            chart.source(data, {
+                time: {
+                    tickCount: 10
+                }
+            });
+            chart.line().position('time*UV');
+            //guide
+            const max_min = findMaxMin();
+            const max = max_min.max;
+            const min = max_min.min;
+            chart.guide().dataMarker({
+                top: true,
+                content: '峰值：' + max.UV,
+                position: [max.time, max.UV],
+                style: {
+                    text: {
+                        fontSize: 13
+                    }
+                },
+                lineLength: 30
+            });
+            chart.guide().dataMarker({
+                top: true,
+                content: '谷值：' + min.UV,
+                position: [min.time, min.UV],
+                style: {
+                    text: {
+                        fontSize: 13
+                    }
+                },
+                lineLength: 50
+            });
+            chart.guide().region({
+                start:['2018-09-01','min'],
+                end:['2018-09-02','max']
+            });
+            chart.guide().region({
+                start:['2018-09-08','min'],
+                end:['2018-09-09','max']
+            });
+            chart.guide().region({
+                start:['2018-09-15','min'],
+                end:['2018-09-16','max']
+            });
+            chart.guide().region({
+                start:['2018-09-22','min'],
+                end:['2018-09-24','max']
+            });
+            chart.render();
+
+            function findMaxMin() {
+                let maxValue = 0;
+                let minValue = 50000;
+                let maxObj = null;
+                let minObj = null;
+                for (var i = 0; i < data.length; i++) {
+                    var d = data[i];
+                    if (d.UV > maxValue) {
+                        maxValue = d.UV;
+                        maxObj = d;
+                    }
+                    if (d.UV < minValue) {
+                        minValue = d.UV;
+                        minObj = d;
+                    }
+                }
+                return { max: maxObj, min: minObj };
+            }
+        });
+    </script>
+</body>
+
+</html>

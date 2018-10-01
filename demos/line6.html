@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>某网站访问趋势</title>
+</head>
+
+<body>
+    <div id="chartTitle">某网站24小时UV趋势</div>
+    <div id="chartDescription">由于网站当地已进入夏令时，作息时间比上一周提早一小时，因此UV访问量提早约1小时。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="./build/g2.js"></script>
+    <script>
+        $.getJSON('./data/siteUV.json', function (data) {
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: [50, 120, 50, 50]
+            });
+            const ds = new DataSet();
+            const dv = ds.createView().source(data);
+            dv.transform({
+                type: 'map',
+                callback: function callback(row) {
+                    const times = row.Time.split(' ');
+                    row.date = times[0];
+                    row.time = times[1];
+                    return row;
+                }
+            });
+            chart.axis('time', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('Count', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.tooltip({
+                crosshairs: false
+            });
+            chart.legend({
+                attachLast: true
+            });
+            chart.source(dv, {
+                time: {
+                    tickCount: 12
+                },
+                date: {
+                    type: 'cat'
+                }
+            });
+            chart.line().position('time*Count').color('date', ['#d9d9d9', '#1890ff']);
+            chart.guide().dataMarker({
+                position: ['13:00', 0],
+                lineLength: 30,
+                content: '服务器宕机\n低值：0',
+                style: {
+                    text: {
+                        textAlign: 'left',
+                        fontSize: 14
+                    }
+                }
+            });
+            chart.guide().dataMarker({
+                position: ['14:00', 4180],
+                lineLength: 20,
+                content: '宕机导致服务积压，恢复后达峰值\n高值：4108',
+                style: {
+                    text: {
+                        textAlign: 'left',
+                        fontSize: 14
+                    }
+                }
+            });
+            chart.render();
+        });
+    </script>
+</body>
+
+</html>

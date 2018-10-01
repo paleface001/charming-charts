@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="geometry" content="line">
+  <link rel="stylesheet" href="./assets/style/common.css">
+  <title>全球恐怖袭击事件</title>
+</head>
+
+<body>
+    <div id="chartTitle">全球恐怖袭击致死人数趋势分析</div>
+    <div id="chartDescription">自1970年起全球恐怖袭击死亡人数整体呈现上升趋势，2004年后致死人数陡增。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：维基百科</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="./build/g2.js"></script>
+    <script>
+    $.getJSON('./data/terrorism.json', function(data) {
+      const ds = new DataSet();
+      const dv1 = ds.createView().source(data);
+      dv1.transform({
+        type: 'map',
+        callback: function callback(row) {
+          if(typeof(row.Deaths)==='string'){
+            row.Deaths = row.Deaths.replace(',', '');
+          }
+          row.Deaths = parseInt(row.Deaths);
+          row.death = row.Deaths;
+          row.year = row.Year;
+          return row;
+          }
+      });
+      const dv2 = ds.createView().source(dv1.rows);
+      dv2.transform({
+        type: 'regression',
+        method:'linear',
+        fields:['year','death'],
+        bandwidth: 0.1,
+        extent: [0, 4],
+        as: ['year', 'death']
+      });
+      const chart = new G2.Chart({
+          container: 'canvas',
+          width:$('#canvas').width(),
+          height:$('#canvas').height(),
+          padding:'auto'
+      });
+      chart.tooltip({
+        crosshairs:false
+      });
+      const view1 = chart.view();
+      view1.source(dv1);
+      view1.axis('Year',{
+        subTickCount: 3,
+        subTickLine: {
+          length: 3,
+          stroke: '#bfbfbf',
+          lineWidth: 2
+          },
+        tickLine: {
+          length: 6,
+          lineWidth: 2,
+          stroke: '#bfbfbf'
+        },
+        label:{
+          textStyle:{
+            fill:'#aaaaaa'
+            }
+        }
+      });
+      view1.axis('Deaths',{
+        label:{
+          textStyle:{
+            fill:'#aaaaaa'
+            }
+        }
+      });
+      view1.line().position('Year*Deaths');
+      const view2 = chart.view();
+      view2.axis(false);
+      view2.source(dv2);
+      view2.line().position('year*death').style({
+        stroke:'#969696',
+        lineDash:[3,3]
+      }).tooltip(false);
+      //add guide
+      view1.guide().text({
+        content:'趋势线',
+        position:['1970',2500],
+        style:{
+          fill:'#8c8c8c',
+          fontSize:14,
+          rotate:-25
+        }
+      });
+      chart.render();
+    });
+    </script>
+</body>
+
+</html>

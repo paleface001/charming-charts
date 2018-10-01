@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="geometry" content="line">
+  <link rel="stylesheet" href="./assets/style/common.css">
+  <title>某产品国内销售趋势</title>
+</head>
+
+<body>
+    <div id="chartTitle">某产品国内销售趋势分析</div>
+    <div id="chartDescription">自 2012-19 至 2018-02 产品销售数量在 2015-01 滑入谷底，随着公司改变经营结构、加大营销力度，之后产品销售额逐年攀升。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="./build/g2.js"></script>
+    <script>
+    const TICKS = ["2012-09", "2013-05", "2014-01", "2014-09", "2015-05", "2016-01", "2016-09", "2017-05", "2018-02"];
+    $.getJSON('./data/salesTrend.json', function(data) {
+      const chart = new G2.Chart({
+          container: 'canvas',
+          width:$('#canvas').width(),
+          height:$('#canvas').height(),
+          padding:[50,20,50,20]
+      });
+      chart.source(data,{
+        date:{
+          ticks:TICKS
+        }
+      });
+      chart.legend(false);
+      chart.axis('buyin',false);
+      chart.axis('date',{
+        label:{
+          textStyle:{
+            fill:'#aaaaaa'
+            }
+        }
+      }); 
+      chart.line().position('date*buyin');
+      chart.point().position('date*buyin')
+           .size('date',val=>{
+             if(TICKS.indexOf(val)>=0){
+               return 4;
+             }
+             return 0;
+           })
+           .label('date*buyin',(date,buyin)=>{
+            if(TICKS.indexOf(date)>=0){
+               return buyin+'万';
+             }
+             return '';
+           },{
+             textStyle:{
+               fill:'#7a7a7a',
+               fontSize:13
+             }
+           })
+           .style({ lineWidth:3 });
+      
+      chart.guide().line({
+        start:['2012-09',5396],
+        end:['2018-02',5396],
+        lineStyle:{
+          stroke:'#595959',
+          lineWidth:1,
+          lineDash:[3,3]
+        },
+        text:{
+          position:'start',
+          style:{
+            fill:'#8c8c8c',
+            fontSize:15,
+            fontWeight:'normal'
+          },
+          content:'均值线 5,396万',
+          offsetY:-5
+        }
+      });
+      chart.render();
+    });
+    </script>
+</body>
+
+</html>
