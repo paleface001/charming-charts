@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>2015 年起 google 全球搜索 Blockchain 和 NLP 趋势对比</title>
+</head>
+
+<body>
+    <div id="chartTitle">2015 年起 google 全球搜索 Blockchain 和 NLP 趋势对比</div>
+    <div id="chartDescription">2016年2月28日，blockchain(区块链)的搜索热度首超 NLP（自然语言处理）,之后搜索热度居高不下，在2017年12月9日达到顶峰后迅速回落。而 NLP 近年的搜索热度一直表现平平。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Google Trends（不包括中国）</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="./build/g2.js"></script>
+    <script>
+        $.getJSON('./data/blockchain.json', function (data) {
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: [50, 50, 50, 50]
+            });
+
+            chart.axis('date', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('blockchain', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('nlp',false);
+            chart.tooltip({
+                crosshairs: false
+            });
+            chart.legend({
+                position: 'top-center'
+            });
+
+            chart.source(data,{
+                nlp:{
+                    min:0,
+                    max:100
+                },
+                blockchain:{
+                    min:0,
+                    max:100
+                }
+            });
+            chart.line().position('date*blockchain').color('#1890ff');
+            chart.line().position('date*nlp').color('#2fc25b');
+            chart.guide().dataMarker({
+                position: ['2016-02-28', 9],
+                lineLength: 30,
+                content: 'Blockchain 首超 NLP',
+                style: {
+                    text: {
+                        textAlign: 'left',
+                        fontSize: 14
+                    },
+                    point: {
+                        stroke:'#2fc25b',
+                        r:4
+                    }
+                }
+            });
+            chart.guide().dataMarker({
+                position: ['2017-12-17', 100],
+                lineLength: 30,
+                content: '2017-12-17, 受比特币影响，\n blockchain搜索热度达到顶峰\n峰值：100',
+                style: {
+                    text: {
+                        textAlign: 'right',
+                        fontSize: 14
+                    },
+                    point: {
+                        r:4
+                    }
+                }
+            });    
+            chart.render();
+        });
+    </script>
+</body>
+
+</html>
