@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>中美两国与国际原油价格走势对比</title>
+</head>
+
+<body>
+    <div id="chartTitle">中美两国与国际原油价格走势对比</div>
+    <div id="chartDescription">为方便阅读，已将国际 Brent 原油价、美国常规零售原油价折算为人民币每升的价格，中国成品油价以北京主城区 92 号汽车为例。图表展示了 2017 年初至 2018-03-19的数据，可以看到中美两国的价格走势均受国际原油价格影响。</div>
+    <div id="canvas"></div>
+    <div id="dataSource"><p>数据来源：U.S. EIA | 国家发改委</p>
+        <p> Brent 布伦特是全球大部分地区原油期货交易品种，也是公认的全球油价参考指数。</p>
+    </div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="./build/g2.js"></script>
+    <script>
+        $.getJSON('./data/oil-price.json', function (data) {
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: [50, 130, 50, 50]
+            });
+            chart.source(data);
+            chart.scale('date', {
+                range: [0, 1],
+                tickCount:10,
+                type:'timeCat'
+            });
+            chart.axis('date', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('price', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.tooltip({
+                crosshairs:'y',
+                useHtml: false,
+                share:true
+            });
+            chart.legend({
+                attachLast: true
+            });
+            chart.line().position('date*price').shape('hv').color('country');
+
+            chart.render();
+        });
+    </script>
+</body>
+
+</html>
