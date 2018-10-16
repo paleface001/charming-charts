@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <style>
+        .g2-tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 3px;
+            color: rgb(87, 87, 87);
+            font-size: 12px;
+            line-height: 20px;
+            padding: 10px 10px 6px 10px;
+            box-shadow: 0px 0px 10px #aeaeae;
+            pointer-events: none;
+        }
+
+        .g2-tooltip-list {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .g2-tooltip-value {
+            margin-left: 30px;
+            display: inline;
+            float: right;
+        }
+
+        .g2-tooltip-tail {
+            background-color: #f9f9f9;
+            color: #909090;
+            font-size: 14px;
+            padding-bottom: 10px;
+            margin-top: 10px;
+            list-style-type: none;
+            text-align: center;
+            padding-top: 10px;
+        }
+
+        .g2-tooltip-story {
+            color:#9b9b9b;
+            font-size: 12px;
+            padding-bottom: 10px;
+            margin-top: 10px;
+            list-style-type: none;
+            padding-top: 10px;
+        }
+    </style>
+    <title>各国人口出生率</title>
+</head>
+
+<body>
+    <div id="chartTitle">各国人口出生率</div>
+    <div id="chartDescription">自1950年起，全球230个国家和地区的人口出生率普遍下降，其中有近一半国家低于全球平均人口出生率。出生率受经济因素、生育政策、生育观、社会保障制度、医疗水平等因素影响。通常来说发达国家出生率低，发展中国家出生率高，请关注中国历年出生率趋势。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">
+        <p>数据来源：UNdata联合国数据中心</p>
+        <p>人口替代率，指维持人口稳定的出生率，联合国建议一位女性所生的孩子数为 2.1。</p>
+    </div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        let KEY_DOWN = false;
+        $.getJSON('./data/fertility.json', function (data) {
+            const ds = new DataSet();
+            const dv = ds.createView().source(data);
+            dv.transform({
+                type: 'sort',
+                callback(a, b) {
+                    return a.year - b.year;
+                }
+            });
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: [50, 50, 80, 50]
+            });
+            chart.source(dv);
+            chart.scale('year', {
+                range: [0, 1]
+            });
+            chart.axis('year', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('value', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.tooltip({
+                crosshairs: 'y',
+                shared: true,
+                htmlContent: function (title, items) {
+                    var html = '<div class="g2-tooltip">';
+                    var titleDom = '<div class="g2-tooltip-title" style="margin-bottom: 4px;">' + title + '</div>';
+                    var listDom = '<ul class="g2-tooltip-list">';
+                    for (var i = 0; i < items.length; i++) {
+                        var item = items[i];
+                        var itemDom = '<li data-index={index}>' + '<span style="background-color:' + item.color + ';width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>' + item.name + '<span class="g2-tooltip-value">' + item.value + '</span>' + '</li>';
+                        listDom += itemDom;
+                    }
+                    listDom += '</ul>';
+
+                    if (KEY_DOWN) {
+                        if (title === '1955' && items[0].name ==='China') {
+                            var storyDom = '<li class="g2-tooltip-story">中国折线，受三年自然灾害影响，<br/>1959-1961年间出生率锐减。</li>';
+                            return html + titleDom + listDom +storyDom+ '</div>';
+                        }
+                        return html + titleDom + listDom + '</div>';
+                    } else {
+                        var tailDom = '<li class="g2-tooltip-tail">按住ALT键查看单独数据点</li>';
+                        return html + titleDom + listDom + tailDom + '</div>';
+                    }
+                }
+            });
+            chart.legend({
+                position: 'bottom-center'
+            });
+            chart.line().position('year*value').color('country').size('country',val=>{
+                if(val === 'China'){
+                    return 4;
+                }
+                return 2;
+            }).opacity('country',val=>{
+                if(val === 'China'){
+                    return 1;
+                }
+                return 0.7;
+            });
+            chart.point().position('year*value').color('country').size('country',val=>{
+                if(val === 'China'){
+                    return 4;
+                }
+                return 0;
+            }).style({
+                lineWidth:2
+            });
+            chart.render();
+            const tooltipCtr = chart.get("tooltipController");
+            const tooltip = tooltipCtr.tooltip;
+            $(document).keydown(function () {
+                tooltipCtr.options.shared = false;
+                tooltip.set('shared', false);
+                KEY_DOWN = true;
+            });
+
+            $(document).keyup(function () {
+                tooltipCtr.options.shared = true;
+                tooltip.set('shared', true);
+                KEY_DOWN = false;
+            });
+        });
+    </script>
+</body>
+
+</html>
