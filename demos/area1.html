@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>某公司烟花国内累计销售额趋势</title>
+</head>
+
+<body>
+    <div id="chartTitle">某公司烟花国内累计销售额趋势</div>
+    <div id="chartDescription">全国多地近年来陆续出台史上最严“禁燃令”，导致烟花销售额持续下降。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="./build/g2.js"></script>
+    <script>
+        $.getJSON('./data/fireworks-sales.json', function (data) {
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: 50
+            });
+            chart.source(data);
+            chart.scale('Data', {
+                range: [0, 1],
+                tickCount:10,
+                type:'timeCat'
+            });
+            chart.axis('Data', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('sales', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.tooltip({
+                crosshairs:'y',
+                useHtml: false,
+                share:true
+            });
+            chart.legend({
+                attachLast: true
+            });
+            chart.guide().dataMarker({
+                top: true,
+                content: '因政策调整导致销量下滑',
+                position: ['2014-01', 1750],
+                style: {
+                    text: {
+                        fontSize: 13
+                    }
+                },
+                lineLength: 30
+            });
+            
+            chart.line().position('Data*sales');
+            chart.area().position('Data*sales');
+            chart.render();
+        });
+    </script>
+</body>
+
+</html>
