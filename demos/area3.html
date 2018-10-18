@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <style>
+        .g2-tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 3px;
+            color: rgb(87, 87, 87);
+            font-size: 12px;
+            line-height: 20px;
+            padding: 10px 10px 6px 10px;
+            box-shadow: 0px 0px 10px #aeaeae;
+            pointer-events: none;
+        }
+
+        .g2-tooltip-list {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .g2-tooltip-value {
+            margin-left: 30px;
+            display: inline;
+            float: right;
+        }
+
+        .g2-tooltip-statistic {
+            font-size: 14px;
+            padding-bottom: 10px;
+            margin-top: 10px;
+            list-style-type: none;
+        }
+
+        .g2-tooltip-statistic-value {
+            font-weight: 'bold';
+            display: 'inline-block';
+            float: right;
+            margin-left: 30px
+        }
+
+        #toolbar {
+            height: 40px;
+            width: 100%
+        }
+    </style>
+    <title>全球能源消耗趋势</title>
+</head>
+
+<body>
+    <div id="chartTitle">全球能源消耗趋势</div>
+    <div id="chartDescription">能源单位 EJ (Exa-Jules) 为 10 ,CIS 地区指由前苏联大多数共和国组成的进行多边合作的独立国家联合体。</div>
+    <div id="toolbar">
+        <div class='toolbox-button buttonGroup-left button-selected' data-index='1'>绝对值</div>
+        <div class='toolbox-button buttonGroup-right' data-index='2'>百分比</div>
+    </div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：bp.com</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        let chartType = 1;
+        $.getJSON('./data/global-oil-new.json', function (data) {
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: [20, 180, 50, 50]
+            });
+            const ds = new DataSet();
+            const dv = ds.createView().source(data);
+            dv.transform({
+                type: 'percent',
+                field: 'value',
+                dimension: 'country',
+                groupBy: ['date'],
+                as: 'percent'
+            });
+            chart.source(dv, {
+                percent: {
+                    max:1.0,
+                    min:0.0,
+                    nice:false,
+                    formatter: function formatter(value) {
+                        value = value || 0;
+                        value = value * 100;
+                        return parseInt(value);
+                    },
+                }
+            });
+            chart.scale('date', {
+                range: [0, 1],
+                tickCount: 10,
+                type: 'timeCat'
+            });
+   
+
+            chart.tooltip({
+                crosshairs: 'y',
+                htmlContent: function htmlContent(title, items) {
+                    var html = '<div class="g2-tooltip">';
+                    var titleDom = '<div class="g2-tooltip-title" style="margin-bottom: 4px;">' + title + '</div>';
+                    var listDom = '<ul class="g2-tooltip-list">';
+                    var sum = 0;
+                    for (var i = 0; i < items.length; i++) {
+                        var item = items[i];
+                        var itemDom = '<li data-index={index}>' + '<span style="background-color:' + item.color + ';width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>' + item.name + '<span class="g2-tooltip-value">' + item.value + '</span>' + '</li>';
+                        listDom += itemDom;
+                        sum += parseFloat(item.value);
+                    }
+                    listDom += '</ul>';
+                    var sumDom = '<li class="g2-tooltip-statistic">总计：<span class="g2-tooltip-statistic-value">' + sum.toFixed(2) + '</span></li>';
+                    if (chartType === 1) {
+                        return html + titleDom + sumDom + listDom + '</div>';
+                    } else {
+                        return html + titleDom + listDom + '</div>';
+                    }
+                }
+            });
+            chart.legend({
+                attachLast: true
+            });
+
+            chartType1();
+
+            chart.render();
+
+            $('.toolbox-button').click(function (event) {
+                const $dom = $(event.target);
+                const index = $dom.data().index;
+                chartType = index;
+                $('.toolbox-button').removeClass('button-selected');
+                $dom.addClass('button-selected');
+                if (index === 1) {
+                    chart.clear();
+                    chartType1();
+                    chart.repaint();
+                } else {
+                    chart.clear();
+                    chartType2();
+                    chart.repaint();
+                }
+            });
+
+            function chartType1() {
+                chart.axis('date', {
+                    label: {
+                        textStyle: {
+                            fill: '#aaaaaa'
+                        }
+                    }
+                });
+                chart.axis('value', {
+                    label: {
+                        textStyle: {
+                            fill: '#aaaaaa'
+                        }
+                    }
+                });
+
+                chart.lineStack().position('date*value').color('country', ['#3ca1ff', '#2fc15b', '#facc14', '#273673', '#00c2c3', '#3436c7', '#f04864']);
+
+                chart.areaStack().position('date*value').color('country', ['#3ca1ff', '#2fc15b', '#facc14', '#273673', '#00c2c3', '#3436c7', '#f04864']).opacity(0.7);
+
+            }
+
+            function chartType2() {
+                chart.axis('date', {
+                    label: {
+                        textStyle: {
+                            fill: '#aaaaaa'
+                        }
+                    }
+                });
+                chart.axis('percent', {
+                    label: {
+                        textStyle: {
+                            fill: '#aaaaaa'
+                        }
+                    }
+                });
+                chart.lineStack().position('date*percent').color('country', ['#3ca1ff', '#2fc15b', '#facc14', '#273673', '#00c2c3', '#3436c7', '#f04864']);
+
+                chart.areaStack().position('date*percent').color('country', ['#3ca1ff', '#2fc15b', '#facc14', '#273673', '#00c2c3', '#3436c7', '#f04864']).opacity(0.7);
+            }
+        });
+    </script>
+</body>
+
+</html>

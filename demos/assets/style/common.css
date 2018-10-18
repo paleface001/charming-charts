@@ -2,3 +2,18 @@
 #chartDescription{width: 100%; font-size: 15px; color:#8c8c8c; margin-bottom: 10px;}
 #canvas{width: 100%; height: 500px; margin-bottom: 10px;}
 #dataSource{width: 100%; font-size:15px; color:#bfbfbf; margin-top: 20px; text-indent: 20px; border-left-style: solid; border-left-width: 4px; border-left-color:#bfbfbf}
+
+.toolbox-button {width:70px; height: 30px; border-style: solid; border-color:#d9d9d9; border-width:1px; color:#727272; text-align: center; font-size:14px; float: left; cursor: pointer;}
+
+.toolbox-button:after {
+    display: inline-block;
+    width: 0;
+    height: 100%;
+    vertical-align: middle;
+    content: '';
+}
+
+.button-selected { border-color:#1890ff; color:#1890ff;}
+
+.buttonGroup-left {border-top-left-radius: 5px; border-bottom-left-radius: 5px;}
+.buttonGroup-right {border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
