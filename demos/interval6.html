@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>2018-08 A组售前咨询单次通话时长分布</title>
+</head>
+
+<body>
+    <div id="chartTitle">2018-08 A组售前咨询单次通话时长分布</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { type: '1-3秒', value: 0.16 },
+            { type: '4-10秒', value: 0.125 },
+            { type: '11-30秒', value: 0.24 },
+            { type: '31-60秒', value: 0.19 },
+            { type: '1-3分', value: 0.22 },
+            { type: '3-10分', value: 0.05 },
+            { type: '10-30分', value: 0.01 },
+            { type: '30+分', value: 0.015 }
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: [20, 20, 50, 40]
+        });
+        chart.source(data);
+        chart.axis('type', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            }
+        });
+
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                },
+                formatter: val => {
+                    return String(parseFloat(val * 100)) + '%';
+                }
+            }
+        });
+        chart.legend(false);
+        chart.interval().position('type*value').opacity(1)
+            .color('type', (val) => {
+                if (val === '10-30分' || val === '30+分') {
+                    return '#ff4d4f';
+                }
+                return '#2194ff';
+            })
+            .label('value', (val) => {
+                if (val < 0.05) {
+                    return String(parseInt(val * 100)) + '%';
+                }
+            });
+        chart.render();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>生鲜销售趋势</title>
+</head>
+
+<body>
+    <div id="chartTitle">生鲜销售趋势</div>
+    <div id="chartDescription">生鲜销售每日在午餐前 10：00-11：00 销售额最高，预测在午饭后销售额又将迎来一个小高峰。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { time: '9：00-10：00', value: 30 },
+            { time: '10：00-11：00', value: 90 },
+            { time: '11：00-12：00', value: 50 },
+            { time: '12：00-13：00', value: 30 },
+            { time: '13：00-14：00', value: 70 }
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: [20, 20, 50, 25]
+        });
+        chart.source(data);
+        chart.scale('value', {
+            alias: '销售额(万)'
+        });
+        chart.axis('time', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            }
+        });
+
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+
+        chart.tooltip({
+            useHtml: false,
+            share: true
+        });
+        chart.interval().position('time*value').opacity(1)
+             .style('time',{
+
+                 lineWidth:(val)=>{
+                    if(val === '13：00-14：00'){
+                        return 1;
+                    }
+                    return 0;
+                 },
+                 opacity:(val)=>{
+                    if(val === '13：00-14：00'){
+                        return 0.4;
+                    }
+                    return 1;
+                 },
+                 stroke:'#636363',
+                 lineDash:[3,2]
+             });
+        chart.render();
+    </script>
+</body>
+
+</html>

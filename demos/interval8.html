@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>代码年提交量</title>
+</head>
+
+<body>
+    <div id="chartTitle">代码年提交量</div>
+    <div id="canvas">
+        <div class='left-tool-box'>
+            <img class='sort-button' src='images/sortbar.png' />
+        </div>
+    </div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        let sortType = 'positive';
+        const data = [
+            { name: '绝云', value: 2254 },
+            { name: '米法', value: 2108 },
+            { name: '再飞', value: 1780 },
+            { name: '青湳', value: 1463 },
+            { name: '有田', value: 1233 },
+            { name: '十吾', value: 1180 },
+            { name: '象数', value: 798 },
+            { name: '顾倾', value: 372 },
+            { name: '画康', value: 243 },
+            { name: '完白', value: 176 }
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: [20, 20, 50, 50]
+        });
+        chart.source(data);
+        chart.scale('value', {
+            alias:'行数(万)'
+        });
+        chart.axis('name', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            }
+        });
+
+        chart.axis('value', {
+            label: null,
+            title:{
+                offset:30
+            }
+        });
+        chart.legend(false);
+        chart.interval().position('name*value').opacity(1).label('value', {
+            textStyle: (val) => {
+                const value = parseInt(val);
+                const style = {
+                    fill: '#595959',
+                    fontWeight: 'normal',
+                    fontSize: 14
+                };
+                if (value > 1440) {
+                    style.fontWeight = 'bold';
+                }
+                return style;
+            },
+            offset: 5
+        });
+        chart.guide().regionFilter({
+            top: true,
+            start: ['start', 'max'],
+            end: ['end', 1440],
+            color: '#FF4D4F'
+        });
+        chart.guide().line({
+            top: true,
+            start: ['start', 1440],
+            end: ['end', 1440],
+            lineStyle: {
+                stroke: '#595959',
+                lineWidth: 1,
+                lineDash: [3, 3]
+            },
+            text: {
+                position: 'start',
+                style: {
+                    fill: '#595959',
+                    fontSize: 15,
+                    fontWeight: 300
+                },
+                content: '公司平均 14,40',
+                offsetY: -5
+            }
+        });
+        chart.render();
+
+        $('.sort-button').click(function () {
+            sortType = (sortType === 'positive') ? 'negative' : 'positive';
+            sortData(sortType);
+            chart.repaint();
+        });
+
+        function sortData(sortType) {
+            if (sortType === 'positive') {
+                data.sort(function (a, b) {
+                    return b.value - a.value;
+                });
+            } else {
+                data.sort(function (a, b) {
+                    return a.value - b.value;
+                });
+            }
+        }
+
+    </script>
+</body>
+
+</html>

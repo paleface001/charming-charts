@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>top 5 销售部门</title>
+</head>
+
+<body>
+    <div id="chartTitle">top 5 销售部门</div>
+    <div id="canvas">
+        <div class='left-tool-box'>
+            <img class='sort-button' src='images/sortbar.png' />
+        </div>
+    </div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        let sortType = 'positive';
+        const data = [
+            { type: '销售部', value: 2250 },
+            { type: '市场部', value: 1700 },
+            { type: '电子商务部', value: 800 },
+            { type: '后勤部', value: 300 },
+            { type: '客户服务部', value: 240 }
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: [20, 20, 50, 100]
+        });
+        chart.source(data);
+        chart.scale('value', {
+            alias:'订单金额(万)'
+        });
+        chart.axis('type', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            }
+        });
+
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            title:{
+                offset:80
+            }
+        });
+        chart.legend(false);
+        chart.interval().position('type*value').opacity(1);
+        const max_min = findMaxMin();
+        const max = max_min.max;
+        const min = max_min.min;
+        chart.guide().dataMarker({
+            top: true,
+            content: '最高值：' + max.value,
+            position: [max.type, max.value],
+            display: {
+                point: false,
+                line: false
+            },
+            style: {
+                text: {
+                    fontSize: 14,
+                    textAlign: 'center'
+                }
+            }
+        });
+        chart.guide().dataMarker({
+            top: true,
+            content: '最低值：' + min.value,
+            position: [min.type, min.value],
+            display: {
+                point: false,
+                line: false
+            },
+            style: {
+                text: {
+                    fontSize: 14,
+                    textAlign: 'center'
+                }
+            }
+        });
+        chart.render();
+
+        $('.sort-button').click(function () {
+            sortType = (sortType === 'positive') ? 'negative' : 'positive';
+            sortData(sortType);
+            chart.repaint();
+        });
+
+        function findMaxMin() {
+            let maxValue = 0;
+            let minValue = 50000;
+            let maxObj = null;
+            let minObj = null;
+            for (var i = 0; i < data.length; i++) {
+                var d = data[i];
+                if (d.value > maxValue) {
+                    maxValue = d.value;
+                    maxObj = d;
+                }
+                if (d.value < minValue) {
+                    minValue = d.value;
+                    minObj = d;
+                }
+            }
+            return { max: maxObj, min: minObj };
+        }
+
+        function sortData(sortType) {
+            if (sortType === 'positive') {
+                data.sort(function (a, b) {
+                    return b.value - a.value;
+                });
+            } else {
+                data.sort(function (a, b) {
+                    return a.value - b.value;
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
