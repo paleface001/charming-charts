@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>中国移动互联网细分结构占比</title>
+</head>
+
+<body>
+    <div id="chartTitle">中国移动互联网细分结构占比</div>
+    <div id="chartDescription">整体来看，行业细分市场格局趋于稳定，17 年 Q2 移动购物仍占比超六成，稳居第二，比去年略有下降。近两年移动游戏维持在11%左右。而 16 年 Q4
+        爆发的共享单车成倍增长，从 0.1% 增至 17年 Q2 的1.2%。</div>
+    <div id="canvas">
+    </div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { time: '16 Q1', type: '移动游戏', value: 0 },
+            { time: '16 Q1', type: '移动购物', value: 17.8 },
+            { time: '16 Q1', type: '移动营销', value: 69.4 },
+            { time: '16 Q1', type: '共享单车', value: 12.8 },
+
+            { time: '16 Q2', type: '移动游戏', value: 0 },
+            { time: '16 Q2', type: '移动购物', value: 18.1 },
+            { time: '16 Q2', type: '移动营销', value: 70.7 },
+            { time: '16 Q2', type: '共享单车', value: 11.2 },
+
+            { time: '16 Q3', type: '移动游戏', value: 0 },
+            { time: '16 Q3', type: '移动购物', value: 20.8 },
+            { time: '16 Q3', type: '移动营销', value: 67.4 },
+            { time: '16 Q3', type: '共享单车', value: 11.8 },
+
+            { time: '16 Q4', type: '移动游戏', value: 0.1 },
+            { time: '16 Q4', type: '移动购物', value: 20.3 },
+            { time: '16 Q4', type: '移动营销', value: 69.2 },
+            { time: '16 Q4', type: '共享单车', value: 10.4 },
+
+            { time: '17 Q1', type: '移动游戏', value: 0.4 },
+            { time: '17 Q1', type: '移动购物', value: 17.3 },
+            { time: '17 Q1', type: '移动营销', value: 68.3 },
+            { time: '17 Q1', type: '共享单车', value: 14 },
+
+            { time: '17 Q2', type: '移动游戏', value: 1.2 },
+            { time: '17 Q2', type: '移动购物', value: 18.3 },
+            { time: '17 Q2', type: '移动营销', value: 68.6 },
+            { time: '17 Q2', type: '共享单车', value: 11.9 }
+
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: [20, 100, 50, 70]
+        });
+        chart.source(data, {
+            value: {
+                max: 100,
+                min: 0,
+                nice: true
+            }
+        });
+        chart.scale('value', {
+            alias: '金额(元)'
+        })
+        chart.axis('time', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            }
+        });
+
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            title: {
+                offset: 50
+            }
+        });
+        chart.legend({
+            position: 'right-center'
+        });
+        chart.intervalStack().position('time*value').color('type', ['#40a9ff', '#1890ff', '#096dd9', '#0050b3']).opacity(1).label('value', function (val) {
+            if(val<10){
+               return false;
+            }
+            return {
+                position: 'middle',
+                offset: 0,
+                textStyle: {
+                    fill: '#fff'
+                }
+            }
+        });
+        chart.render();
+    </script>
+</body>
+
+</html>
