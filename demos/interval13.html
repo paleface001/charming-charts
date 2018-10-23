@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>美国科技三巨头女性员工比例</title>
+</head>
+
+<body>
+    <div id="chartTitle">美国科技三巨头女性员工比例</div>
+    <div id="chartDescription">该图比较了 Apple、Facebook、Google 三家公司整体、非技术岗、技术岗和领导岗，三家公司女性员工占比均较高。</div>
+    <div id="canvas">
+    </div>
+    <div id="dataSource">数据来源：各公司官网 2018-02</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { company: 'Apple', type: '整体', value: 30 },
+            { company: 'Facebook', type: '整体', value: 35 },
+            { company: 'Google', type: '整体', value: 28 },
+
+            { company: 'Apple', type: '非技术岗', value: 40 },
+            { company: 'Facebook', type: '非技术岗', value: 65 },
+            { company: 'Google', type: '非技术岗', value: 47 },
+
+            { company: 'Apple', type: '技术岗', value: 23 },
+            { company: 'Facebook', type: '技术岗', value: 18 },
+            { company: 'Google', type: '技术岗', value: 20 },
+
+            { company: 'Apple', type: '技术岗', value: 35 },
+            { company: 'Facebook', type: '技术岗', value: 30 },
+            { company: 'Google', type: '技术岗', value: 25 }
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: [50, 20, 50, 70]
+        });
+        chart.source(data);
+        chart.scale('value', {
+            alias: '占比（%）',
+            max:75,
+            min:0
+        });
+        chart.axis('type', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            }
+        });
+
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            title: {
+                offset: 50
+            }
+        });
+        chart.legend({
+            position: 'top-center'
+        });
+        chart.interval().position('type*value').color('company').opacity(1).adjust([{
+            type: 'dodge',
+            marginRatio: 1 / 32
+        }]);
+        chart.render();
+    </script>
+</body>
+
+</html>
