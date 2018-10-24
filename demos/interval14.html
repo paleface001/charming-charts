@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <style>
+        .g2-legend {
+            font-size: 14px;
+            color: #595959;
+            width: 150px !important;
+            height: auto !important;
+            top: 50% !important;
+            margin-top: -179px !important;
+            pointer-events: none;
+        }
+
+        .genderlist {
+            list-style-type: square;
+            list-style-position: inside;
+        }
+
+        .genderlist li {
+            font-size: 28px;
+        }
+
+        .genderlist li span {
+            font-size: 12px;
+            color: #595959;
+            display: inline-block;
+            vertical-align: middle;
+            text-indent: -10px
+        }
+    </style>
+    <title>各 APP 男女年龄分布对比</title>
+</head>
+
+<body>
+    <div id="chartTitle">各 APP 男女年龄分布对比</div>
+    <div id="canvas">
+    </div>
+    <div id="dataSource">数据来源：Demo 数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { app: 'Windy', age: '50 岁以上', gender: '男', value: 0.1 },
+            { app: 'Windy', age: '41-50 岁', gender: '男', value: 0.2 },
+            { app: 'Windy', age: '31-40 岁', gender: '男', value: 0.3 },
+            { app: 'Windy', age: '18-30 岁', gender: '男', value: 0.4 },
+
+            { app: 'Windy', age: '50 岁以上', gender: '女', value: 0.1 },
+            { app: 'Windy', age: '41-50 岁', gender: '女', value: 0.25 },
+            { app: 'Windy', age: '31-40 岁', gender: '女', value: 0.25 },
+            { app: 'Windy', age: '18-30 岁', gender: '女', value: 0.4 },
+
+            { app: 'meteoblue', age: '50 岁以上', gender: '男', value: 0.1 },
+            { app: 'meteoblue', age: '41-50 岁', gender: '男', value: 0.3 },
+            { app: 'meteoblue', age: '31-40 岁', gender: '男', value: 0.3 },
+            { app: 'meteoblue', age: '18-30 岁', gender: '男', value: 0.3 },
+
+            { app: 'meteoblue', age: '50 岁以上', gender: '女', value: 0.1 },
+            { app: 'meteoblue', age: '41-50 岁', gender: '女', value: 0.3 },
+            { app: 'meteoblue', age: '31-40 岁', gender: '女', value: 0.2 },
+            { app: 'meteoblue', age: '18-30 岁', gender: '女', value: 0.4 },
+
+            { app: 'Start Walk', age: '50 岁以上', gender: '男', value: 0.05 },
+            { app: 'Start Walk', age: '41-50 岁', gender: '男', value: 0.25 },
+            { app: 'Start Walk', age: '31-40 岁', gender: '男', value: 0.35 },
+            { app: 'Start Walk', age: '18-30 岁', gender: '男', value: 0.35 },
+
+            { app: 'Start Walk', age: '50 岁以上', gender: '女', value: 0.05 },
+            { app: 'Start Walk', age: '41-50 岁', gender: '女', value: 0.25 },
+            { app: 'Start Walk', age: '31-40 岁', gender: '女', value: 0.4 },
+            { app: 'Start Walk', age: '18-30 岁', gender: '女', value: 0.3 },
+
+            { app: 'Planlt', age: '50 岁以上', gender: '男', value: 0.15 },
+            { app: 'Planlt', age: '41-50 岁', gender: '男', value: 0.2 },
+            { app: 'Planlt', age: '31-40 岁', gender: '男', value: 0.25 },
+            { app: 'Planlt', age: '18-30 岁', gender: '男', value: 0.4 },
+
+            { app: 'Planlt', age: '50 岁以上', gender: '女', value: 0.15 },
+            { app: 'Planlt', age: '41-50 岁', gender: '女', value: 0.2 },
+            { app: 'Planlt', age: '31-40 岁', gender: '女', value: 0.35 },
+            { app: 'Planlt', age: '18-30 岁', gender: '女', value: 0.3 }
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: [20, 170, 20, 70]
+        });
+        chart.source(data);
+        chart.scale('value', {
+            alias: '占比（%）',
+            nice: false
+        });
+        chart.axis('app', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            }
+        });
+
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                },
+                formatter: val => {
+                    return val * 100 + '%';
+                }
+            },
+            title: {
+                offset: 60
+            }
+        });
+        chart.legend({
+            useHtml: true,
+            position: 'right-center',
+            containerTpl: '<div class="g2-legend"><div class="g2-legend-list"><ul class="female-list genderlist">女</ul><ul class="male-list genderlist">男</ul></div></div>',
+            itemTpl: function (value, color, checked, index) {
+                checked = checked ? 'checked' : 'unChecked';
+                const femaleColors = ['#ffadd2', '#ff85c0', '#f759ab', '#eb2f96'];
+                const $femaleItem = $('<li style="color:' + femaleColors[index] + '"><span>' + value + '</span></li>');
+                $('.female-list').append($femaleItem);
+                const maleColors = ['#40a9ff', '#1890ff', '#096dd9', '#0050b3'];
+                const $maleItem = $('<li style="color:' + maleColors[index] + '"><span>' + value + '</span></li>');
+                $('.male-list').append($maleItem);
+                return '<div class="item-' + index + ' ' + checked + '"' + '"data-value=' + value + '"' +
+                    '></div>';
+            },
+            'g2-legend': {
+            },
+            'g2-legend-list': {
+            }
+        });
+        chart.interval().position('app*value').color('age*gender', (a, g) => {
+            if (g === '男') {
+                if (a === '50 岁以上') return '#40a9ff';
+                if (a === '41-50 岁') return '#1890ff';
+                if (a === '31-40 岁') return '#096dd9';
+                if (a === '18-30 岁') return '#0050b3';
+            } else if (g === '女') {
+                if (a === '50 岁以上') return '#ffadd2';
+                if (a === '41-50 岁') return '#ff85c0';
+                if (a === '31-40 岁') return '#f759ab';
+                if (a === '18-30 岁') return '#eb2f96';
+            }
+        }).opacity(1).adjust([{
+            type: 'dodge',
+            dodgeBy: 'gender',
+            marginRatio: 0
+        },
+        {
+            type: 'stack'
+        }]);
+        chart.render();
+    </script>
+</body>
+
+</html>

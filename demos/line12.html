@@ -289,6 +289,7 @@
                 return html + '</div>';
             }
         }); 
+        chart.legend(false);
         chart.line().position('date*value').color('type');
         chart.render();
         chart.showTooltip({x:$("#canvas").width()-20,y:100});
