@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>某产品行业销量分布 Top10</title>
+</head>
+
+<body>
+    <div id="chartTitle">某产品行业销量分布 Top10</div>
+    <div id="chartDescription">自 1970 年起全球恐怖袭击死亡人数整体呈上升趋势，2004 年后恐怖致死数量陡增。</div>
+    <div id="canvas">
+            <div class = 'bottom-tool-box'>
+                <img class = 'sort-button' src = 'images/sortbar.png'/>
+            </div>
+    </div>
+    <div id="dataSource">数据来源：维基百科</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        let sortType = 'positive';
+        const data = [
+           {type:'汽车',value:34},
+           {type:'建材家居',value:85},
+           {type:'住宿旅游',value:103},
+           {type:'交通运输与仓储邮政',value:142},
+           {type:'建筑房地产',value:251},
+           {type:'教育',value:367},
+           {type:'IT 通讯电子',value:491},
+           {type:'社会公共管理',value:672},
+           {type:'医疗卫生',value:868},
+           {type:'金融保险',value:1234}  
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: 'auto'
+        });
+        chart.source(data,{
+            value:{
+                max:1300,
+                min:0,
+                nice:false,
+                alias:'销量（百万）'
+            }
+        });
+        chart.axis('type', {
+            label: {
+                textStyle: {
+                    fill: '#595959',
+                    fontSize:14
+                }
+            },
+            tickLine: {
+                alignWithLabel: false,
+                length: 0
+            },
+            line:{
+                lineWidth:0
+            }
+        });
+        chart.axis('value', {
+            label: null,
+            title: {
+                offset: 30,
+                textStyle:{
+                    fontSize:14,
+                    fontWeight:300
+                }
+            }
+        });
+        chart.legend(false);
+        chart.coord().transpose();
+        chart.interval().position('type*value').size(40).opacity(1).label('value',{
+            textStyle:{
+                fill:'#595959'
+            },
+            offset:10
+        });
+        chart.render();
+        $('.sort-button').click(function(){
+            sortType = (sortType === 'positive') ? 'negative' : 'positive';
+            sortData(sortType);
+            chart.repaint();
+        });
+
+        function sortData(sortType){
+            if(sortType === 'positive'){
+                data.sort(function(a,b){
+                    return b.value - a.value;
+                });
+            }else{
+                data.sort(function(a,b){
+                    return a.value - b.value;
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
