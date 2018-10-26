@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>某网站来访用户学历分布</title>
+</head>
+
+<body>
+    <div id="chartTitle">某网站来访用户学历分布</div>
+    <div id="chartDescription">来访用户学历均偏高，本硕博共占 77%，其中占比最大的为硕士学历，达40%，低学历占比较小。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { type: '硕士', value: 0.4 },
+            { type: '本科', value: 0.21 },
+            { type: '未知', value: 0.08 },
+            { type: '初中', value: 0.009 },
+            { type: '专科', value: 0.013 },
+            { type: '博士', value: 0.17 }
+        ];
+
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: 'auto'
+        });
+        chart.source(data, {
+            value: {
+                max: 1300,
+                min: 0,
+                nice: false,
+                alias: '销量（百万）'
+            }
+        });
+        chart.legend(false);
+        chart.coord('theta', {
+            radius: 0.75
+        });
+        chart.intervalStack().position('value').color('type', ['#705dc8', '#3b4771', '#38c060', '#2593fc', '#f9cb34', '#27c1c1']).opacity(1).label('value', function (val) {
+            const offset = (val > 0.02) ? -50 : 60;
+            let color = (val > 0.02)? 'white':'#595959';
+            let fontSize = (val > 0.02)?16:12;
+            return {
+                textStyle: {
+                    fill:color,
+                    fontSize,
+                    rotate: 0,
+                    textAlign: 'center',
+                    shadowBlur: 2,
+                    shadowColor: 'rgba(0, 0, 0, .45)'
+                },
+                offset
+            }
+        });
+        chart.render();
+    </script>
+</body>
+
+</html>
