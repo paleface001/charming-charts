@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <style>
+        .g2-label-item {
+            font-size: 12px;
+            color: #ffffff;
+        }
+    </style>
+    <title>《战狼3》关注度来源</title>
+</head>
+
+<body>
+    <div id="chartTitle">《战狼3》关注度来源</div>
+    <div id="chartDescription">该电影在微博上的信息量占据主导地位，微博仍然是目前娱乐影视的主要营销宣传增强影响力的主要渠道，也是主创团队和粉丝进行互动的主要方式。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const otherRatio = 6.67 / 100; // Other 的占比
+        const otherOffsetAngle = otherRatio * Math.PI; // other 占的角度的一半
+        const data = [
+            { type: '微博', value: 93.33 },
+            { type: '其他', value: 6.67 }
+        ];
+        const other = [
+            { type: '论坛', value: 1.77 },
+            { type: '网站', value: 1.44 },
+            { type: '微信', value: 1.12 },
+            { type: '客户端', value: 1.05 },
+            { type: '新闻', value: 0.81 },
+            { type: '视频', value: 0.39 },
+            { type: '博客', value: 0.37 },
+            { type: '报刊', value: 0.17 }
+        ];
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: 'auto'
+        });
+        chart.legend(false);
+        const view1 = chart.view({
+            start: {
+                x: 0,
+                y: 0
+            },
+            end: {
+                x: 0.5,
+                y: 1
+            }
+        });
+        view1.coord('theta', {
+            radius: 0.7,
+            startAngle: 0 + otherOffsetAngle,
+            endAngle: Math.PI * 2 + otherOffsetAngle
+        });
+        view1.source(data);
+        view1.intervalStack().position('value').color('type', ['#38c060', '#2593fc']).opacity(1)
+        .label('value',function(val){
+            return {
+                offset:-40,
+                useHtml:true,
+                htmlTemplate: (text, item, index) => {
+                    const d = item.point;
+                    const percent = text + "%";
+                    return '<span class="g2-label-item">'+d.type+'<br/>'+percent+'</span>';
+                }
+            }
+        });
+
+        const view2 = chart.view({
+            start: {
+                x: 0.5,
+                y: 0.1
+            },
+            end: {
+                x: 1,
+                y: 0.9
+            }
+        });
+        view2.axis(false);
+        view2.source(other, {
+            value: {
+                nice: false
+            }
+        });
+        view2.intervalStack().position('1*value').color('type', ['#063d8a', '#0b53b0', '#1770d6', '#2593fc', '#47abfc', '#6dc1fc', '#94d6fd', '#bbe7fe'])
+        .label('value',{
+            position:'right',
+            offset:[-20, 0],
+            formatter: (text, item, index) => {
+                const d = item.point;
+                return d.type + ' ' + d.value+'%';
+            }
+        });
+        chart.render();
+
+        /*---------绘制连接区间-----------*/
+        const canvas = chart.get('canvas');
+        const container = chart.get('backPlot');
+        const view1_coord = view1.get('coord');
+        const center = view1_coord.center;
+        const radius = view1_coord.radius;
+        const interval_geom = chart.getAllGeoms()[1];
+        const interval_container = interval_geom.get('shapeContainer');
+        const interval_bbox = interval_container.getBBox();
+        const view2_coord = view2.get('coord');
+        const view2_y_scale = view2.getYScales()[0];
+        //area points
+        const pie_start1 = {
+            x: center.x + Math.cos(Math.PI * 2 - otherOffsetAngle) * radius,
+            y: center.y + Math.sin(Math.PI * 2 - otherOffsetAngle) * radius,
+        };
+        const pie_start2 = {
+            x: center.x + Math.cos(otherOffsetAngle) * radius,
+            y: center.y + Math.sin(otherOffsetAngle) * radius
+        };
+        const interval_end1 = {
+            x: interval_bbox.minX,
+            y: view2_coord.end.y
+        };
+        const interval_end2 = {
+            x: interval_bbox.minX,
+            y: view2_coord.start.y
+        };
+        const path = [
+            ['M', pie_start1.x, pie_start1.y],
+            ['L', pie_start2.x, pie_start2.y],
+            ['L', interval_end2.x, interval_end2.y],
+            ['L', interval_end1.x, interval_end1.y],
+            ['Z']
+        ];
+        container.addShape('path', {
+            attrs: {
+                path,
+                fill: '#e9f4fe'
+            }
+        });
+        canvas.draw();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>outing 去哪玩投票结果分析</title>
+</head>
+
+<body>
+    <div id="chartTitle">outing 去哪玩投票结果分析</div>
+    <div id="chartDescription">约一半同学喜欢海岛休闲游，20% 的同学万年不变的选择了千岛湖，其次较多的是柬埔寨，呼伦贝尔选择较少是因为季节不对。距离较远的苏梅岛和塞班岛，相对来说不受欢迎。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：MTA</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { location: '三亚', value: 44.9 },
+            { location: '千岛湖', value: 19.7 },
+            { location: '柬埔寨', value: 17.3 },
+            { location: '呼伦贝尔', value: 14.4 },
+            { location: '苏梅岛', value: 2.5 },
+            { location: '塞班岛', value: 2.5 }
+        ];
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: 'auto'
+        });
+        chart.source(data);
+        chart.legend({
+            position: 'right-center',
+            offsetX: -200
+        });
+        chart.coord('theta', {
+            radius: 0.75
+        });
+        chart.intervalStack().position('value').color('location', ['#1890ff', '#37c661', '#fbce1e', '#2b3b79', '#8a4be2', '#1dc5c5'])
+            .style({
+                stroke: 'white',
+                lineWidth: 1
+            })
+            .label('value', function (val) {
+                if (val < 3) {
+                    return null;
+                } else {
+                    return {
+                        offset: -50,
+                        textStyle: {
+                            fill: 'white',
+                            fontSize: 14
+                        },
+                        formatter: (text, item, index) => {
+                            console.log(text);
+                            return text + '%';
+                        }
+                    }
+                }
+            });
+        chart.render();
+    </script>
+</body>
+
+</html>

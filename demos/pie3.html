@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>2018年第一季度不同等级城市的用户购买手机占比</title>
+</head>
+
+<body>
+    <div id="chartTitle">2018年第一季度不同等级城市的用户购买手机占比</div>
+    <div id="chartDescription">当前购机主力用户主要分布在三四线及以下城市。主要原因是一二线城市对新机需求逐渐消退，而三四线城市随着城镇化的推进与意识形态的崛起，对新机需求旺盛，在2018年第一季度合计占比达到60%。</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：MTA</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { type: '一线城市', value: 0.19 },
+            { type: '二线城市', value: 0.21 },
+            { type: '三线城市', value: 0.27 },
+            { type: '四线及以下', value: 0.33 }
+        ];
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: 'auto'
+        });
+        chart.source(data);
+        chart.legend(false);
+        chart.coord('theta', {
+            radius: 0.75
+        });
+        chart.intervalStack().position('value').color('type', ['#063d8a', '#1770d6', '#47abfc', '#38c060'])
+            .opacity('type', function (val) {
+                if (val === '四线及以下') {
+                    return 1;
+                }
+                return 0.3;
+            })
+            .style('type', {
+                stroke: 'black',
+                lineWidth: (val) => {
+                    if (val === '四线及以下') {
+                        return 2;
+                    }
+                    return 0;
+                }
+            })
+            .label('type', function (val) {
+                const opacity = (val === '四线及以下')?1:0.5;
+                return {
+                    offset: -30,
+                    textStyle: {
+                        opacity,
+                        fill: 'white',
+                        fontSize:14
+                    },
+                    formatter: (text, item, index) => {
+                        const d = item.point;
+                        return d.type + '\n' + d.value + '%';
+                    }
+                }
+            });
+        chart.render();
+    </script>
+</body>
+
+</html>
