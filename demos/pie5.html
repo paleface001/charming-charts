@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <style>
+        .g2-guide-html {
+            width: 100px;
+            height: 100px;
+            vertical-align: middle;
+            text-align: center;
+            opacity: 0;
+        }
+
+        .g2-guide-html .title {
+            font-size: 12px;
+            color: #8c8c8c;
+            font-weight: 300;
+        }
+
+        .g2-guide-html .value {
+            font-size: 30px;
+            color: #000;
+            font-weight: bold;
+        }
+    </style>
+    <title>项目整体监控</title>
+</head>
+
+<body>
+    <div id="chartTitle">项目整体监控</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.1/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            { type: '评估中', percent: 0.23 },
+            { type: '设计中', percent: 0.28 },
+            { type: '正在开发', percent: 0.30 },
+            { type: '已上线', percent: 0.19 }
+        ];
+        const sum = 500;
+        const ds = new DataSet();
+        const dv = ds.createView().source(data);
+        dv.transform({
+            type: 'map',
+            callback(row) {
+                row.value = parseInt(sum * row.percent);
+                return row;
+            }
+        });
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: 'auto'
+        });
+        chart.source(dv);
+        chart.tooltip(false);
+        chart.legend({
+            position: 'right-center',
+            offsetX: -200
+        });
+        chart.coord('theta', {
+            radius: 0.75,
+            innerRadius: 0.6
+        });
+        chart.intervalStack().position('percent').color('type', ['#0a7aca', '#0a9afe', '#4cb9ff', '#8ed1ff']).opacity(1).label('percent', {
+            offset: -30,
+            textStyle: {
+                fill: 'white',
+                fontSize: 12,
+                shadowBlur: 2,
+                shadowColor: 'rgba(0, 0, 0, .45)'
+            },
+            formatter: (text, item, index) => {
+                return String(parseInt(item.point.percent * 100)) + '%';
+            }
+        });
+        chart.guide().html({
+            position: ['50%', '50%'],
+            html: '<div class="g2-guide-html"><p class="title">项目总计</p><p class="value"></p></div>'
+        });
+        chart.on('interval:mouseenter', function (ev) {
+            const data = ev.data._origin;
+            $(".g2-guide-html").css('opacity', 1);
+            $(".g2-guide-html .value").text(data.value);
+        });
+
+        chart.on('interval:mouseleave', function (ev) {
+            $(".g2-guide-html").css('opacity', 0);
+            $(".g2-guide-html .value").text('');
+        });
+        chart.render();
+    </script>
+</body>
+
+</html>
