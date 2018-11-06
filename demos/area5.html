@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>世界人口在各政体中的分步情况</title>
+</head>
+
+<body>
+    <div id="chartTitle">世界人口在各政体中的分步情况</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        $.getJSON('./data/area.json', function (data) {
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: 'auto'
+            });
+            chart.source(data);
+            const ds = new DataSet();
+            const dv = ds.createView()
+                .source(data)
+                .transform({
+                    type: 'fold',
+                    fields: ['Democracy', 'Colony', 'No Data', 'Open Anocracy', 'Closed Anocracy', 'Monarchy'],
+                    key: 'type',
+                    value: 'value',
+                    retains: ['Year']
+                })
+                .transform({
+                    type: 'percent',
+                    field: 'value',
+                    dimension: 'type',
+                    groupBy: ['Year'],
+                    as: 'percent'
+                });
+
+            chart.source(dv, {
+                percent: {
+                    max: 1.0,
+                    min: 0.0,
+                    nice: false,
+                    formatter: function formatter(value) {
+                        value = value || 0;
+                        value = value * 100;
+                        return parseInt(value)+'%';
+                    },
+                }
+            });
+
+            chart.scale('Year', {
+                range: [0, 1],
+                tickCount: 10,
+                type: 'timeCat'
+            });
+
+            chart.legend({
+                position:'top-center'
+            });
+
+            chart.areaStack().position('Year*percent').color('type',['#6896a7','#8ac0d5','#dddddd','#fedba9','#fab36f','#d96d6f']).opacity(1);
+
+            chart.render();
+
+        });
+
+
+    </script>
+</body>
+
+</html>

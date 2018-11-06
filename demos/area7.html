@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>某频道视频订阅数和月收入关系</title>
+</head>
+
+<body>
+    <div id="chartTitle">某频道视频订阅数和月收入关系</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：Demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        const data = [
+            {
+                "Date": "22 February",
+                "订阅数": 50000,
+                "月收入": 125000
+            },
+            {
+                "Date": "28 February",
+                "订阅数": 60000,
+                "月收入": 150000
+            },
+            {
+                "Date": "3 March",
+                "订阅数": 100000,
+                "月收入": 250000
+            },
+            {
+                "Date": "20 March",
+                "订阅数": 200000,
+                "月收入": 500000
+            },
+            {
+                "Date": "7 April",
+                "订阅数": 250000,
+                "月收入": 625000
+            },
+            {
+                "Date": "13 June",
+                "订阅数": 210000,
+                "月收入": 525000
+            }
+        ];
+        const chart = new G2.Chart({
+            container: 'canvas',
+            width: $('#canvas').width(),
+            height: $('#canvas').height(),
+            padding: 'auto'
+        });
+        chart.source(data);
+        const ds = new DataSet();
+        const dv = ds.createView()
+            .source(data)
+            .transform({
+                type: 'fold',
+                fields: ["订阅数", "月收入"],
+                key: 'type',
+                value: 'value',
+                retains: ['Date']
+            });
+        const dv2 = ds.createView().source(data).transform({
+            type: 'map',
+            callback(row) {
+                row.range = [row["订阅数"], row['月收入']];
+                return row;
+            }
+        });
+        chart.scale('Date', {
+            range: [0, 1],
+            tickCount: 10,
+            type: 'timeCat'
+        });
+        chart.tooltip({
+            crosshairs:'y'
+        });
+
+        //view1
+        const view1 = chart.view();
+        view1.source(dv2);
+        view1.area().position('Date*range').color('#fedba9').opacity(0.1).tooltip(false);
+        //view1
+        const view2 = chart.view();
+        view2.source(dv);
+        view2.line().position('Date*value').color('type', ['#b5392b', '#000000']).opacity(1);
+        view2.point().position('Date*value').color('type', ['#b5392b', '#000000']).opacity(1).shape('circle');
+
+        chart.render();
+    </script>
+</body>
+
+</html>
