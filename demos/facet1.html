@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>各国人口出生率</title>
+</head>
+
+<body>
+    <div id="chartTitle">各国人口出生率</div>
+    <div id="canvas"></div>
+    <div id="dataSource">数据来源：UNdata联合国数据中心</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.2/dist/g2.min.js"></script>
+    <script>
+        $.getJSON('./data/fertility.json', function (data) {
+            const ds = new DataSet();
+            const dv = ds.createView().source(data);
+            dv.transform({
+                type: 'sort',
+                callback(a, b) {
+                    return a.year - b.year;
+                }
+            });
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: [50, 20, 50, 50],
+                renderer: 'svg'
+            });
+            chart.source(dv, {
+                'value': {
+                    max: 9,
+                    min: 1
+                }
+            });
+            chart.scale('year', {
+                range: [0, 1],
+                tickCount: 2
+            });
+            chart.axis('year', {
+                grid: {
+                    lineStyle: {
+                        lineDash: [0, 0],
+                        lineWidth: 1,
+                        stroke: '#e9e9e9'
+                    }
+                },
+                label: {
+                    textStyle: (text) => {
+                        if (text === '1950') {
+                            return {
+                                textAlign: 'start',
+                                fontSize: 14,
+                                fill: '#aaaaaa',
+                            };
+                        } else {
+                            return {
+                                textAlign: 'start',
+                                fontSize: 14,
+                                fill: '#aaaaaa',
+                            };
+                        }
+                    }
+                }
+            });
+
+            chart.facet('rect', {
+                fields: ['country'],
+                padding: 0,
+                eachView: function eachView(view) {
+                    view.line().position('year*value').shape('smooth');
+                }
+            });
+            chart.render();
+        });
+
+
+    </script>
+</body>
+
+</html>
