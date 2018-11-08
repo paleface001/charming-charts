@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="geometry" content="line">
+    <link rel="stylesheet" href="./assets/style/common.css">
+    <title>咖啡品类销售数据</title>
+</head>
+
+<body>
+    <div id="chartTitle">咖啡品类销售数据</div>
+    <div id="canvas">
+    </div>
+    <div class='breadcrumb'>
+    </div>
+    <div id="dataSource">数据来源：demo数据</div>
+    <script src="./assets/jquery-3.2.1.min.js"></script>
+    <script src="./assets/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
+    <script>
+        const colors = ['#fed330', '#84c9b2', '#cf876b', '#7e827a', '#1a3441'];
+        $.getJSON('./data/coffe2.json', function (filedata) {
+            const rollupData = {};
+            let tem_fileData = filedata;
+            const data = combineData(tem_fileData);
+            const chart = new G2.Chart({
+                container: 'canvas',
+                width: $('#canvas').width(),
+                height: $('#canvas').height(),
+                padding: 'auto'
+            });
+            chart.source(data, {
+                date: {
+                    //tickCount:6
+                }
+            });
+            chart.scale('date', {
+                type: 'timeCat'
+            });
+            chart.legend({
+                position: 'top-center'
+            });
+            chart.line().position('date*value').color('type', colors).size(3);
+            chart.render();
+            chart.on('line:click', function (ev) {
+                const id_array = ev.shape._id.split('-');
+                const data_type = id_array[id_array.length - 1];
+                const selected = tem_fileData[data_type];
+                rollupData[data_type] = tem_fileData;
+                const d = combineData(selected.children);
+                if (d.length > 0) {
+                    chart.source(d);
+                    chart.repaint();
+                    tem_fileData = selected.children;
+                    
+                    //绘制面包屑
+                    const $breadMarker = $('<span class="marker">' + data_type + '></span>');
+                    $breadMarker.data('dimension', data_type);
+                    $('.breadcrumb').append($breadMarker);
+                    //点击事件
+                    $breadMarker.click(function () {
+                        const dataDim = $(this).data('dimension');
+                        rollingUp(dataDim);
+                        $(this).remove();
+                    });
+                }
+            });
+
+            function rollingUp(dimension) {
+                const selected = rollupData[dimension];
+                const data = combineData(selected);
+                chart.source(data);
+                chart.repaint();
+                delete rollupData[dimension];
+            }
+        });
+
+
+
+        function combineData(data) {
+            let output = [];
+            for (key in data) {
+                const d = data[key];
+                output = output.concat(d.data);
+            }
+            return output;
+        }
+    </script>
+</body>
+
+</html>
