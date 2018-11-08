@@ -1,12 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="geometry" content="line">
     <link rel="stylesheet" href="./assets/style/common.css">
+    <style>
+        .g2-tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 3px;
+            color: rgb(87, 87, 87);
+            font-size: 12px;
+            line-height: 20px;
+            padding: 10px 10px 6px 10px;
+            box-shadow: 0px 0px 10px #aeaeae;
+        }
+
+        .g2-tooltip-list {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .g2-tooltip-value {
+            margin-left: 30px;
+            display: inline;
+            float: right;
+        }
+
+        .g2-tooltip-tail {
+            background-color: #f9f9f9;
+            color: #909090;
+            font-size: 14px;
+            padding-bottom: 10px;
+            margin-top: 10px;
+            list-style-type: none;
+            text-align: center;
+            padding-top: 10px;
+            cursor: pointer;
+        }
+    </style>
     <title>咖啡品类销售数据</title>
 </head>
 
@@ -41,13 +76,42 @@
                 type: 'timeCat'
             });
             chart.legend({
-                position: 'top-center'
+                attachLast:true
+            });
+            chart.tooltip({
+                triggerOn: 'click',
+                shared: false,
+                crosshairs: false,
+                htmlContent: (title, items) => {
+                    const dataType = items[0].name;
+                    const container = '<div class="g2-tooltip">';
+                    const titleDom = '<div class="g2-tooltip-title" style="margin-bottom: 4px;">' + title + '</div>';
+                    let listDom = '<ul class="g2-tooltip-list">';
+                    for (var i = 0; i < items.length; i++) {
+                        const item = items[i];
+                        const itemDom = '<li data-index={index}>' + '<span style="background-color:' + item.color + ';width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>' + item.name + '<span class="g2-tooltip-value">' + item.value + '</span>' + '</li>';
+                        listDom += itemDom;
+                    }
+                    listDom += '</ul>';
+                    const tailDom = '<li class="g2-tooltip-tail" data-dimension="' + dataType + '">点击下钻</li>';
+                    const childrenLength = Object.keys(tem_fileData[dataType].children).length;
+                    if(childrenLength>0){
+                       return container + titleDom + listDom + tailDom + '</div>'; 
+                    }else{
+                        return container + titleDom + listDom +  '</div>';
+                    }  
+                }
             });
             chart.line().position('date*value').color('type', colors).size(3);
             chart.render();
-            chart.on('line:click', function (ev) {
-                const id_array = ev.shape._id.split('-');
-                const data_type = id_array[id_array.length - 1];
+
+            $(document).on('click', '.g2-tooltip-tail', function (ev) {
+                const target = $(this)[0];
+                drillingDown($(target));
+            });
+
+            function drillingDown($target) {
+                const data_type = $target.data('dimension');
                 const selected = tem_fileData[data_type];
                 rollupData[data_type] = tem_fileData;
                 const d = combineData(selected.children);
@@ -55,7 +119,6 @@
                     chart.source(d);
                     chart.repaint();
                     tem_fileData = selected.children;
-                    
                     //绘制面包屑
                     const $breadMarker = $('<span class="marker">' + data_type + '></span>');
                     $breadMarker.data('dimension', data_type);
@@ -64,10 +127,23 @@
                     $breadMarker.click(function () {
                         const dataDim = $(this).data('dimension');
                         rollingUp(dataDim);
-                        $(this).remove();
+                        //remove the related bread marker
+                        const index = $(this).index();
+                        const markerNumber = $('.breadcrumb .marker').length;
+                        const delete_markers = [];
+                        
+                        for(let i=index; i<markerNumber; i++){
+                            const $marker = $('.breadcrumb').children()[i];
+                            delete_markers.push($marker);
+                        }
+
+                        delete_markers.forEach(function(marker){
+                            marker.remove();
+                        });
+
                     });
                 }
-            });
+            }
 
             function rollingUp(dimension) {
                 const selected = rollupData[dimension];
@@ -75,10 +151,10 @@
                 chart.source(data);
                 chart.repaint();
                 delete rollupData[dimension];
+                tem_fileData = selected;
             }
+
         });
-
-
 
         function combineData(data) {
             let output = [];
