@@ -31,4 +31,3 @@
 /* 面包屑样式 */
 .breadcrumb{width: auto; height: 30px; float: left; color: #8c8c8c; font-size: 14px; margin-top:20px}
 .breadcrumb .marker {width: auto; height: 100%; float: left; margin-right: 10px;  cursor: pointer;}
-.breadcrumb .marker :hover{color: #5e5e5e;}

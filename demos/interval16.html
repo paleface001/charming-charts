@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,12 +43,15 @@
             cursor: pointer;
         }
     </style>
-    <title>咖啡品类销售数据</title>
+    <title>超市品类销售数据</title>
 </head>
 
 <body>
-    <div id="chartTitle">咖啡品类销售数据</div>
+    <div id="chartTitle">超市品类销售数据</div>
     <div id="canvas">
+        <div class='left-tool-box'>
+            <img class='sort-button' src='images/sortbar.png' />
+        </div>
     </div>
     <div class='breadcrumb'>
     </div>
@@ -56,8 +60,9 @@
     <script src="./assets/data-set.min.js"></script>
     <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.3.0/dist/g2.min.js"></script>
     <script>
-        const colors = ['#fed330', '#84c9b2', '#cf876b', '#7e827a', '#1a3441'];
-        $.getJSON('./data/coffe2.json', function (filedata) {
+        const show_labels = ['办公用品', '家具产品', '技术产品','容器，箱子', '剪刀，尺子，锯', '办公装饰品', '桌子', '电话通信产品', '电脑配件', '笔、美术用品', '橡皮筋', '标签', '纸张', '办公机器', '书架', '夹子及其配件 ', '家用电器', '信封', '椅子', '复印机、传真机'];
+        let sortType = 'positive';
+        $.getJSON('./data/company_sales.json', function (filedata) {
             const rollupData = {};
             let tem_fileData = filedata;
             const data = combineData(tem_fileData);
@@ -65,25 +70,47 @@
                 container: 'canvas',
                 width: $('#canvas').width(),
                 height: $('#canvas').height(),
-                padding: 'auto'
+                padding: [20, 20, 50, 100]
             });
             chart.source(data, {
-                date: {
-                    //tickCount:6
+                value: {
+                    tickCount: 5
                 }
             });
-            chart.scale('date', {
-                type: 'timeCat'
+
+            chart.axis('name', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    },
+                    formatter(text, item, index) {
+                        if(show_labels.indexOf(text)<0){
+                            return '';
+                        }
+                        return text;
+                    }
+                },
+                tickLine: {
+                    alignWithLabel: false,
+                    length: 0
+                }
             });
-            chart.legend({
-                attachLast:true
+
+            chart.axis('value', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
             });
+
+
             chart.tooltip({
                 triggerOn: 'click',
                 shared: false,
                 crosshairs: false,
                 htmlContent: (title, items) => {
-                    const dataType = items[0].name;
+                    const dataType = title;
                     const container = '<div class="g2-tooltip">';
                     const titleDom = '<div class="g2-tooltip-title" style="margin-bottom: 4px;">' + title + '</div>';
                     let listDom = '<ul class="g2-tooltip-list">';
@@ -94,15 +121,19 @@
                     }
                     listDom += '</ul>';
                     const tailDom = '<li class="g2-tooltip-tail" data-dimension="' + dataType + '">点击下钻</li>';
-                    const childrenLength = Object.keys(tem_fileData[dataType].children).length;
-                    if(childrenLength>0){
-                       return container + titleDom + listDom + tailDom + '</div>'; 
-                    }else{
-                        return container + titleDom + listDom +  '</div>';
-                    }  
+                    let childrenLength = 0;
+                    if(tem_fileData[dataType] && tem_fileData[dataType].hasOwnProperty('children')){
+                        childrenLength = Object.keys(tem_fileData[dataType].children).length;
+                    }
+                    if (childrenLength > 0) {
+                        return container + titleDom + listDom + tailDom + '</div>';
+                    } else {
+                        return container + titleDom + listDom + '</div>';
+                    }
                 }
             });
-            chart.line().position('date*value').color('type', colors).size(3);
+
+            chart.interval().position('name*value').opacity(1);
             chart.render();
 
             $(document).on('click', '.g2-tooltip-tail', function (ev) {
@@ -131,13 +162,13 @@
                         const index = $(this).index();
                         const markerNumber = $('.breadcrumb .marker').length;
                         const delete_markers = [];
-                        
-                        for(let i=index; i<markerNumber; i++){
+
+                        for (let i = index; i < markerNumber; i++) {
                             const $marker = $('.breadcrumb').children()[i];
                             delete_markers.push($marker);
                         }
 
-                        delete_markers.forEach(function(marker){
+                        delete_markers.forEach(function (marker) {
                             marker.remove();
                         });
 
@@ -154,15 +185,36 @@
                 tem_fileData = selected;
             }
 
+            $('.sort-button').click(function () {
+                const data = chart.get('data');
+                sortType = (sortType === 'positive') ? 'negative' : 'positive';
+                sortData(data, sortType);
+                chart.repaint();
+            });
+
         });
 
         function combineData(data) {
             let output = [];
             for (key in data) {
                 const d = data[key];
-                output = output.concat(d.data);
+                if (d.value > 0) {
+                    output = output.concat(d);
+                }
             }
             return output;
+        }
+
+        function sortData(data, sortType) {
+            if (sortType === 'positive') {
+                data.sort(function (a, b) {
+                    return b.value - a.value;
+                });
+            } else {
+                data.sort(function (a, b) {
+                    return a.value - b.value;
+                });
+            }
         }
     </script>
 </body>
