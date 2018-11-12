@@ -78,7 +78,7 @@
             container: 'canvas',
             width: $('#canvas').width(),
             height: $('#canvas').height(),
-            padding:[20,100,50,30]
+            padding: [20, 100, 50, 30]
         });
         chart.source(dv, {
             value: {
@@ -91,6 +91,20 @@
             }
         });
         chart.axis('range', false);
+        chart.axis('year', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
         chart.legend({
             attachLast: true
         });

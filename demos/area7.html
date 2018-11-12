@@ -79,8 +79,22 @@
             tickCount: 10,
             type: 'timeCat'
         });
+        chart.axis('Date', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chart.axis('value', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
         chart.tooltip({
-            crosshairs:'y'
+            crosshairs: 'y'
         });
 
         //view1

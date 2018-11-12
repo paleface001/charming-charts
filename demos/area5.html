@@ -52,7 +52,7 @@
                     formatter: function formatter(value) {
                         value = value || 0;
                         value = value * 100;
-                        return parseInt(value)+'%';
+                        return parseInt(value) + '%';
                     },
                 }
             });
@@ -63,11 +63,26 @@
                 type: 'timeCat'
             });
 
-            chart.legend({
-                position:'top-center'
+            chart.axis('Year', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
+            });
+            chart.axis('percent', {
+                label: {
+                    textStyle: {
+                        fill: '#aaaaaa'
+                    }
+                }
             });
 
-            chart.areaStack().position('Year*percent').color('type',['#6896a7','#8ac0d5','#dddddd','#fedba9','#fab36f','#d96d6f']).opacity(1);
+            chart.legend({
+                position: 'top-center'
+            });
+
+            chart.areaStack().position('Year*percent').color('type', ['#6896a7', '#8ac0d5', '#dddddd', '#fedba9', '#fab36f', '#d96d6f']).opacity(1);
 
             chart.render();
 
